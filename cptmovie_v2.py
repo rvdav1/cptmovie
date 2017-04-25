@@ -18,7 +18,7 @@ ICHECKMOVIES = "https://www.icheckmovies.com"
 ROTTENTOMATOES = "https://www.rottentomatoes.com"
 HDR = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.64 Safari/537.11'}
 
-isRunning = True
+isThRunning = True
 
 def getUrls(s):
     if s.strip() == '':
@@ -58,33 +58,33 @@ def getUrls(s):
     return reLi
 
 def getImdb(s):
-    r = requests.get(s,headers=HDR)
-    soup = BeautifulSoup(r.text,'html.parser')
+    r = requests.get(s, headers=HDR)
+    soup = BeautifulSoup(r.text, 'html.parser')
     try:
-        return (IMDB + soup.find('a',href=re.compile('/title//*'))['href'])
+        return (IMDB + soup.find('a', href=re.compile('/title//*'))['href'])
     except:
         return s
 
 def getAllmovie(s):
-    r = requests.get(s,headers=HDR)
-    soup = BeautifulSoup(r.text,'html.parser')
+    r = requests.get(s, headers=HDR)
+    soup = BeautifulSoup(r.text, 'html.parser')
     try:
-        return (ALLMOVIE + soup.find('a',href=re.compile('/movie//*'))['href'])
+        return (ALLMOVIE + soup.find('a', href=re.compile('/movie//*'))['href'])
     except:
         return s
 
 def getThemoviedb(s):
-    r = requests.get(s,headers=HDR)
-    soup = BeautifulSoup(r.text,'html.parser')
+    r = requests.get(s, headers=HDR)
+    soup = BeautifulSoup(r.text, 'html.parser')
     try:
-        return (THEMOVIEDB + soup.find('a',{ 'class' : 'result' },
+        return (THEMOVIEDB + soup.find('a', { 'class' : 'result' },
                                    href=re.compile('/movie//*'))['href'])
     except:
         return s
     
 def getLetterboxd(s):
-    r = requests.get(s,headers=HDR)
-    soup = BeautifulSoup(r.text,'html.parser')
+    r = requests.get(s, headers=HDR)
+    soup = BeautifulSoup(r.text, 'html.parser')
     try:
         return (LETTERBOXD + soup.find('div',
             { 'data-film-link' : re.compile('/*')})['data-film-link'])
@@ -92,18 +92,18 @@ def getLetterboxd(s):
         return s
 
 def getIcheck(s):
-    r = requests.get(s,headers=HDR)
-    soup = BeautifulSoup(r.text,'html.parser')
+    r = requests.get(s, headers=HDR)
+    soup = BeautifulSoup(r.text, 'html.parser')
     try:
-        return (ICHECKMOVIES + soup.find('a',href=re.compile('/search/result*'))['href'])
+        return (ICHECKMOVIES + soup.find('a', href=re.compile('/search/result*'))['href'])
     except:
         return s
 
 def getRotten(s):
-    r = requests.get(s,headers=HDR)
-    soup = BeautifulSoup(r.text,'html.parser')
+    r = requests.get(s, headers=HDR)
+    soup = BeautifulSoup(r.text, 'html.parser')
     try:
-        temp = str(soup.find('div',id='search-results-root').parent.find('script'))
+        temp = str(soup.find('div', id='search-results-root').parent.find('script'))
         return (ROTTENTOMATOES + temp[temp.find('"url":"/m/')+7:
                                 temp[temp.find('"url":"/m/')+8:
                                 ].find('"') +
@@ -111,19 +111,37 @@ def getRotten(s):
     except:
         return s
     
+def openImdb(s):
+    webbrowser.open(getImdb(s))
+    
+def openAllmovie(s):
+    webbrowser.open(getAllmovie(s))
+    
+def openThemoviedb(s):
+    webbrowser.open(getThemoviedb(s))
+        
+def openLetterboxd(s):
+    webbrowser.open(getLetterboxd(s))
+        
+def openIcheck(s):
+    webbrowser.open(getIcheck(s))
+     
+def openRotten(s):
+    webbrowser.open(getRotten(s))
+    
 def opener(urls):
-    webbrowser.open(getImdb(urls[0]))
-    webbrowser.open(getAllmovie(urls[1]))
-    webbrowser.open(getThemoviedb(urls[2]))
-    webbrowser.open(getLetterboxd(urls[3]))
-    webbrowser.open(getIcheck(urls[4]))
-    webbrowser.open(getRotten(urls[5]))
-    global isRunning
-    isRunning = False
+    threading.Thread(target=openImdb, args={urls[0]}).start()
+    threading.Thread(target=openAllmovie, args={urls[1]}).start()
+    threading.Thread(target=openThemoviedb, args={urls[2]}).start()
+    threading.Thread(target=openLetterboxd, args={urls[3]}).start()
+    threading.Thread(target=openIcheck, args={urls[4]}).start()
+    threading.Thread(target=openRotten, args={urls[5]}).start()
+    global isThRunning
+    isThRunning = False
     
 def loading():
     sys.stdout.write('Loading')
-    while isRunning:
+    while isThRunning:
         time.sleep(1)
         sys.stdout.write('.')
         sys.stdout.flush()
